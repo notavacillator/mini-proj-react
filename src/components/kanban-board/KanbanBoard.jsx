@@ -5,9 +5,12 @@ import { useState } from "react"
 import { useRef } from "react"
 import Todo from "./TodoBoard";
 import AddModal from "./AddModal";
+import { useDrop } from "react-dnd";
+
 
 const KanbanBoard = () => {
   const [todoList, setTodoList] = useState([]); 
+  const [completed, setCompleted] = useState([]);
 
   const dialogRef = useRef(null)
 
@@ -17,11 +20,27 @@ const KanbanBoard = () => {
 
   const getTodosFromStorage = () => {
     const todos = localStorage.getItem("todos");
-    const todoListResult = JSON.parse(todos); 
-    console.log("received todos from local storage", todoListResult)
-    return todoListResult; 
+    if(todos){
+      const todoListResult = JSON.parse(todos); 
+
+      console.log("received todos from local storage", todoListResult)
+      return todoListResult; 
+    }
   }
 
+  const [{isOver}, drop] = useDrop(() => ({
+    accept: "todo",
+    drop: (item) => addToCompleted(item.id, item.title, item.desc),
+    collect : (monitor) => ({
+      isOver : !!monitor.isOver(), 
+    })
+  }))
+
+  const addToCompleted = (id, title, desc) => {
+    const moveTask = todoList.filter((todo) => id === todo.id)
+    setCompleted((completed) => [...completed, {id, title, desc}])
+  }
+  
   useEffect(() => {
     const todos = getTodosFromStorage(); 
     if(todos !== null || todos !== undefined){
@@ -51,56 +70,32 @@ const KanbanBoard = () => {
             </button>
             {/* Dialog Modal Popup */}
             <AddModal dialogRef={dialogRef} todoList={todoList} setTodoList={setTodoList}/>
-            {/* <dialog ref={dialogRef} className="modal">
-              <div className="p-0  modal-box overflow-y-auto overflow-x-auto flex flex-col min-h-[20rem]">
-                <h4 className="text-2xl text-left ml-4 mt-4 font-semibold">Add new task </h4>
-                <div className="mt-0 modal-action ">
-                  <form method="dialog">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-[1rem] top-[1rem]" onClick={handleModalClose}>✕</button>
-                  </form>
-                </div>
-                <div className="border-t border-black/20 py-[1rem] flex flex-col justify-evenly gap-4 mt-2 min-h-[20rem]">
-                  <div className="flex flex-col">  
-                    <label className="uppercase text-sm text-left ml-[2rem] mb-1 tracking-tight font-semibold" htmlFor="todo-title">Task Name : </label>
-                    <input
-                      className="mx-auto w-full input input-neutral sm:input-bordered input-md max-w-[90%] bg-slate-200"
-                      type="text"
-                      name="todo-title"
-                      id="todo-title"
-                      placeholder="Add Todo Title"
-                      value={todoTitle}
-                      onChange={handleInputTitle}
-                      required
-                    />
-                    {error && (
-                      <p className="text-error pt-2">Please enter a title for the todo.</p>
-                    )}
-                </div>
-
-                  <div className="flex flex-col">
-                    <label className="uppercase text-sm text-left ml-[2rem] mb-1 tracking-tight font-semibold" htmlFor="todo-desc">Task Description : </label>
-                    <textarea className="mx-auto textarea textarea-neutral sm:textarea-bordered textarea-md w-full max-w-[90%] max-h-[80%] bg-slate-200" 
-                    placeholder="Enter Todo Description" rows={4} id="todo-desc"
-                    value={todoDesc} onChange={handleTextareaChange} ref={textareaRef}/>
-                  </div>
-                </div>
-                <form method="dialog">
-                  <div className=" py-[0.2rem] relative flex justify-end m-2">
-                    <button className="btn btn-primary "
-                      onClick={handleAddTodo} disabled={error}
-                    >Add Todo</button>
-                  </div>
-                </form>
-              </div>
-            </dialog> */}
+           
         </div>
 
         {/* Todo Board  */}
-        <div className="text-left flex flex-col justify-start">
-        {reversedTodoList &&
-          reversedTodoList.map((todo) => (
-            <Todo key={todo.id} id={todo.id} todo={todo} todoList={todoList} setTodoList={setTodoList} />
-          ))}
+        <div className="flex flex-row">
+          <div className="text-left flex flex-col justify-start w-full">
+            <h2 className="max-w-[25rem] w-1/2 ml-2 py-2 px-4 mt-4 text-xl font-semibold bg-gray-300 border border-black/5 rounded-sm ">
+              To do : </h2>
+            {
+              reversedTodoList &&
+                reversedTodoList.map((todo, index) => (
+                  <Todo key={todo.id} id={todo.id} todo={todo} index ={index} todoList={todoList} setTodoList={setTodoList} />
+                ))}
+          </div>
+
+          <div className="w-full" ref={drop}>
+            <h2 className="max-w-[25rem] w-1/2 ml-2 py-2 px-4 mt-4 text-xl font-semibold bg-gray-300 border border-black/5 rounded-sm ">
+              Completed : 
+            </h2>
+            {
+              completed && 
+                completed.map((todo) => (
+                  <Todo key={todo.id} id={todo.id} todo={todo} todoList={todoList} setTodoList={setTodoList}/>
+                ))
+            }
+          </div>
         </div>
       </div>
     </>

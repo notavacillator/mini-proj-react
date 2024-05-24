@@ -4,8 +4,22 @@ import PencilEditIcon from './PencilEditSvg';
 import EditModal from './EditModal';
 import { useRef } from 'react';
 import Stopwatch from './Stopwatch';
+import { useDrag } from 'react-dnd';
 
-const Todo = ({todo, id, todoList, setTodoList}) => {
+const Todo = ({todo, id, todoList, setTodoList, index}) => {
+  const [{isDragging}, drag]= useDrag(() =>  ({
+    type : "todo",
+    item: {
+      id: id, 
+      title: todo.title,
+      desc : todo.desc, 
+
+    },
+    collect: (monitor) => ({
+      isDragging : !!monitor.isDragging(), 
+    })
+  }));
+
   const editDialogRef = useRef(null); 
   
   const {title, desc} = todo;
@@ -29,8 +43,8 @@ const Todo = ({todo, id, todoList, setTodoList}) => {
 
 
   return (
-    <div className="card border border-black/10 max-w-[25rem] bg-[#D1D1D1] text-neutral-content my-4">
-      <div className="p-[1rem] card-body">
+    <div className="card border border-black/10 max-w-[25rem] bg-[#D1D1D1] text-neutral-content my-4" >
+      <div className="p-[1rem] card-body" ref={drag}>
         <div className="flex justify-between">
           <h2 className="card-title break-all text-ellipsis overflow-clip line-clamp-3 hover:line-clamp-[5] hyphens-manual">{title}</h2>
           <div className="card-actions justify-end tooltip tooltip-top tooltip-neutral" data-tip="Edit">
@@ -40,7 +54,7 @@ const Todo = ({todo, id, todoList, setTodoList}) => {
             <EditModal id={id} editDialogRef={editDialogRef} todo={todo} title={title} desc={desc} todoList={todoList} setTodoList={setTodoList}/>
           </div>
         </div>
-        <div className='flex break-words'>
+        <div className='flex break-words min-h-[3rem]'>
           <p className='line-clamp-6 hover:line-clamp-[20] hyphens-manual'>{desc}</p>
         </div>
         <Stopwatch/>

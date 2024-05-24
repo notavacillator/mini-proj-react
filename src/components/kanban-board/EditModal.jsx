@@ -92,8 +92,8 @@ const EditModal = ({editDialogRef, title, desc, todo, id, todoList, setTodoList}
                 </div>
             </div>
             <form method="dialog">
-                <div className=" py-[0.2rem] relative flex justify-end m-2">
-                <button className="btn btn-primary "
+                <div className="relative flex justify-end m-2">
+                <button className="btn btn-primary text-base"
                     onClick={handleUpdateTodo} disabled={error}
                 >Update Todo</button>
                 </div>

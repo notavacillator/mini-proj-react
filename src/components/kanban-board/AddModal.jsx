@@ -33,7 +33,7 @@ const AddModal = ({dialogRef, todoList, setTodoList}) => {
                 desc,
             }
 
-            setTodoList(prevList => [...prevList, todo]);
+            setTodoList(prevList => (prevList ? [...prevList, todo] : [todo]));
             console.log(todoList);
             // addTodosInStorage(todoList); 
             setTodoTitle("");
@@ -49,7 +49,7 @@ const AddModal = ({dialogRef, todoList, setTodoList}) => {
     useEffect(() => {
         const newTodoList = todoList
         console.log(newTodoList)
-        if (todoList.length > 0) {
+        if (todoList && todoList.length > 0) {
             addTodosInStorage(todoList);
         }
   
@@ -62,9 +62,9 @@ const AddModal = ({dialogRef, todoList, setTodoList}) => {
     }
 
     const handleModalClose = () => {
-    setTodoTitle("");
-    setTodoDesc(""); 
-    if(error) setError(false)
+        setTodoTitle("");
+        setTodoDesc(""); 
+        if(error) setError(false)
     }
 
     const handleTextareaChange = (event) => {
