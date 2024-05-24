@@ -49,13 +49,15 @@ const AddModal = ({dialogRef, todoList, setTodoList}) => {
     useEffect(() => {
         const newTodoList = todoList
         console.log(newTodoList)
-        addTodosInStorage(newTodoList)
+        if (todoList.length > 0) {
+            addTodosInStorage(todoList);
+        }
   
     }, [todoList])
     
     const addTodosInStorage = (todos) => {
         // receives the updated todos list 
-        console.log("adding in storage ", todos);
+        console.log("Storage ", todos);
         localStorage.setItem("todos", JSON.stringify(todos)); 
     }
 
